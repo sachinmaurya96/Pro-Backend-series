@@ -79,6 +79,7 @@ const loginUser = asyncHandler(async(req,res)=>{
     //if exist then compaire password
     //password is correct then check accesstoke and refresh token
     //send cookies
+    //send a response {loggedinuser,accesstoken,refreshtoken}
 
     const {email,username,password} = req.body
     if(!(username || password)){
@@ -139,7 +140,7 @@ const logoutUser = asyncHandler(async(req,res)=>{
     .json(new ApiResponse(200,{},"User logged out"))
 })
 
-const refreshAndAccessToken = asyncHandler(async(req,res)=>{
+const refreshAccessToken = asyncHandler(async(req,res)=>{
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
     if(!incomingRefreshToken){
         throw new ApiError(401,"unauthorized request")
@@ -175,4 +176,4 @@ const refreshAndAccessToken = asyncHandler(async(req,res)=>{
    }
 })
 
-export {registerUser, loginUser,logoutUser,refreshAndAccessToken} 
+export {registerUser, loginUser,logoutUser,refreshAccessToken} 
