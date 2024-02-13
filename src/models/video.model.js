@@ -27,6 +27,10 @@ const videoSchema = new Schema(
         type:Number,
         default:0
     },
+    like:{
+      type:Number,
+      default:0
+    },
     isPublished:{
         type:Boolean,
         default:true
@@ -35,8 +39,6 @@ const videoSchema = new Schema(
         type:Schema.Types.ObjectId,
         ref:"User"
     },
-    tags:[String],
-    category:String
   },
   {
     timestamps: true,
