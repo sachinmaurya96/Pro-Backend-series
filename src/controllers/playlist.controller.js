@@ -46,7 +46,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'playlistid is missing');
   }
   try {
-    const playlist = await Playlist.findById(playlistId).populate("owner");
+    const playlist = await Playlist.findById(playlistId).populate("videos");
     return res
       .status(200)
       .json(new ApiResponse(200, playlist, 'playlist fetched successfully'));
