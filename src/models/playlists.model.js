@@ -1,22 +1,28 @@
-import mongoose from "mongoose";
-
-
-const PlaylistSchema = new mongoose.Schema({
-    name:{
-        type:String,
-        required:[true,"Playlist name is required"],
-        unique:[true,"playlist with this name is already exist"],
+import mongoose, { Schema } from 'mongoose';
+const PlaylistSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'Playlist name is required'],
+      unique: [true, 'playlist with this name is already exist'],
     },
-    description:{
-        type:String,
+    description: {
+      type: String,
     },
-    owner:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"User",
-        required:true
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
     },
-   
-},{timestamps:true})
+    videos: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Video',
+        unique: true,
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
-
-export const Playlist = mongoose.model("Playlist",PlaylistSchema)
+export const Playlist = mongoose.model('Playlist', PlaylistSchema);
