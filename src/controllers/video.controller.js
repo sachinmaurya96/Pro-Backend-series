@@ -3,7 +3,10 @@ import { Video } from '../models/video.model.js';
 import { ApiResponse } from '../utills/ApiResponse.js';
 import { asyncHandler } from '../utills/AsyncHandler.js';
 import { ApiError } from '../utills/apiError.js';
-import { deleateOnCloudinary, uploadOnCloudinary } from '../utills/cloudinary.js';
+import {
+  deleateOnCloudinary,
+  uploadOnCloudinary,
+} from '../utills/cloudinary.js';
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, title, userId } = req.query;
@@ -15,7 +18,10 @@ const getAllVideos = asyncHandler(async (req, res) => {
   const skip = (Number(page) - 1) * Number(limit);
 
   //construct the base query to filter products
-  const query = Video.find({}).populate({ path: 'owner', select: 'username fullName avatar' })
+  const query = Video.find({}).populate({
+    path: 'owner',
+    select: 'username fullName avatar',
+  });
 
   if (title) {
     query.where('title').regex(new RegExp(title, 'i'));
@@ -97,6 +103,14 @@ const getVideoById = asyncHandler(async (req, res) => {
     },
     {
       $lookup: {
+        from: 'likes',
+        localField: '_id',
+        foreignField: 'video',
+        as: 'like',
+      },
+    },
+    {
+      $lookup: {
         from: 'users',
         localField: 'owner',
         foreignField: '_id',
@@ -116,6 +130,9 @@ const getVideoById = asyncHandler(async (req, res) => {
       $addFields: {
         subscribersCount: {
           $size: '$subscribers',
+        },
+        likeCount:{
+          $size:"$like"
         },
         isSubscribed: {
           $cond: {
@@ -188,13 +205,16 @@ const deleteVideo = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'videoId is missing');
   }
   try {
-    const video = await Video.findById(videoId)
-    if(String(video.owner) !== String(req.user?._id)){
-        throw new ApiError(402,"unothorized request")
+    const video = await Video.findById(videoId);
+    if (String(video.owner) !== String(req.user?._id)) {
+      throw new ApiError(402, 'unothorized request');
     }
     await Video.findByIdAndDelete(videoId);
-    await deleateOnCloudinary((((video.thumbnail.split("/")).pop()).split("."))[0])
-    await deleateOnCloudinary((((video.videoFile.split("/")).pop()).split("."))[0],"video")
+    await deleateOnCloudinary(video.thumbnail.split('/').pop().split('.')[0]);
+    await deleateOnCloudinary(
+      video.videoFile.split('/').pop().split('.')[0],
+      'video'
+    );
     return res
       .status(200)
       .json(new ApiResponse(200, {}, 'video deleted successfully'));

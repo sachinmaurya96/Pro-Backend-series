@@ -18,7 +18,10 @@ const getVideoComments = asyncHandler(async (req, res) => {
         : totalComments / limit + 1
     );
     const skip = (Number(page) - 1) * Number(limit);
-    const query = await Comment.find({});
+    const query = await Comment.find({}).populate({
+      path: 'owner',
+      select: 'username fullName avatar',
+    });
     const comments = await query.skip(skip).limit(Number(limit)).exec();
     res.set('totlaPages', totalPages);
     return res
@@ -40,9 +43,9 @@ const addComment = asyncHandler(async (req, res) => {
   }
   try {
     const comment = await Comment.create({
-      owner: req.user?._id,
       content,
       videoId,
+      owner: req.user?._id,
     });
     return res
       .status(200)
@@ -60,6 +63,10 @@ const updateComment = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'commentId is missing');
   }
   try {
+    const comments = await Comment.findById(commentId);
+    if (String(comments.owner) !== String(req.user?._id)) {
+      throw new ApiError(404, 'unothorized request');
+    }
     const comment = await Comment.findByIdAndUpdate(
       commentId,
       {
@@ -82,9 +89,9 @@ const deleteComment = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'commentId is missing');
   }
   try {
-    const comment = await Comment.findById(commentId)
-    if(String(comment.owner) !== String(req.user?._id)){
-        throw new ApiError(404,"unothorized request")
+    const comment = await Comment.findById(commentId);
+    if (String(comment.owner) !== String(req.user?._id)) {
+      throw new ApiError(404, 'unothorized request');
     }
     await Comment.findByIdAndDelete(commentId);
     return res

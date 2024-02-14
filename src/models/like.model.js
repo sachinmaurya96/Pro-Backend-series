@@ -6,22 +6,22 @@ const likeSchema = new mongoose.Schema({
         ref:"User",
         required:true
     },
-    Video:{
+    video:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Video",
-        required:true
+        
     },
     tweet:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Tweet",
-        required:true
+       
     },
     comment:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Comment",
-        required:true
+       
     },
 },{timestamps:true})
 
 
-export const Like = mongoose.model("Like",tweetSchema)
+export const Like = mongoose.model("Like",likeSchema)
