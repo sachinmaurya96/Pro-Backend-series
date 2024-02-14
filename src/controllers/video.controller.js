@@ -131,8 +131,8 @@ const getVideoById = asyncHandler(async (req, res) => {
         subscribersCount: {
           $size: '$subscribers',
         },
-        likeCount:{
-          $size:"$like"
+        like: {
+          $size: '$like',
         },
         isSubscribed: {
           $cond: {
@@ -155,19 +155,19 @@ const getVideoById = asyncHandler(async (req, res) => {
         videoFile: 1,
         thumbnail: 1,
         duration: 1,
-        views: 1,
+        views: { $add: ['$views', 1] },
         like: 1,
         isPublished: 1,
         owner: 1,
       },
     },
   ]);
-  if (!video) {
+  if (!video.length) {
     throw new ApiError(404, 'video is not found');
   }
   return res
     .status(200)
-    .json(new ApiResponse(200, video, 'video fetched successfully'));
+    .json(new ApiResponse(200, video[0], 'video fetched successfully'));
 });
 
 const updateVideo = asyncHandler(async (req, res) => {

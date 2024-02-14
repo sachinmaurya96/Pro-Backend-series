@@ -1,7 +1,7 @@
 import { Comment } from '../models/comments.model.js';
 import { ApiResponse } from '../utills/ApiResponse.js';
+import { asyncHandler } from '../utills/AsyncHandler.js';
 import { ApiError } from '../utills/apiError.js';
-import { asyncHandler } from '../utils/asyncHandler.js';
 
 const getVideoComments = asyncHandler(async (req, res) => {
   //TODO: get all comments for a video
@@ -13,12 +13,12 @@ const getVideoComments = asyncHandler(async (req, res) => {
   try {
     const totalComments = await Comment.countDocuments().exec();
     const totalPages = Math.floor(
-      countComments % limit === 0
+      totalComments % limit === 0
         ? totalComments / limit
         : totalComments / limit + 1
     );
     const skip = (Number(page) - 1) * Number(limit);
-    const query = await Comment.find({}).populate({
+    const query = Comment.find({}).populate({
       path: 'owner',
       select: 'username fullName avatar',
     });
@@ -39,7 +39,7 @@ const addComment = asyncHandler(async (req, res) => {
   }
   const { content } = req.body;
   if (!content) {
-    throw new ApiError(400, 'videoid is missing');
+    throw new ApiError(400, 'content is required');
   }
   try {
     const comment = await Comment.create({
@@ -61,6 +61,9 @@ const updateComment = asyncHandler(async (req, res) => {
   const { content } = req.body;
   if (!commentId) {
     throw new ApiError(400, 'commentId is missing');
+  }
+  if (!content) {
+    throw new ApiError(400, 'content is required');
   }
   try {
     const comments = await Comment.findById(commentId);
